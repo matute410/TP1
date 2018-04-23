@@ -39,31 +39,43 @@
 
 //#include "blinky.h"   // <= own header (optional)
 #include "sapi.h"       // <= sAPI header
+#include "tp1.h"		// Inclusion para la compilacion condicional
 
-/*==================[macros and definitions]=================================*/
+#ifdef TP1_3
 
-/*==================[internal data declaration]==============================*/
+void myTickHook( void *ptr ){
 
-/*==================[internal functions declaration]=========================*/
+   static bool_t ledState = OFF;
 
-/*==================[internal data definition]===============================*/
+   gpioMap_t led = (gpioMap_t)ptr;
 
-/*==================[external data definition]===============================*/
+   if( ledState ){
+      ledState = OFF;
+   }
+   else{
+      ledState = ON;
+   }
+   gpioWrite( led, ledState );
+}
 
-/*==================[internal functions definition]==========================*/
+#endif //TP1_3
 
-/*==================[external functions definition]==========================*/
 
 /* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
-int main(void){
+
+int main(void)
+{
 
    /* ------------- INICIALIZACIONES ------------- */
 
    /* Inicializar la placa */
+
    boardConfig();
 
-   /* ------------- REPETIR POR SIEMPRE ------------- */
-   while(1) {
+#ifdef TP1_1
+
+   while(1)
+   {
 
       /* Prendo el led azul */
       gpioWrite( LEDB, ON );
@@ -76,6 +88,68 @@ int main(void){
       delay(500);
 
    }
+
+#endif //TP1_1
+
+#ifdef TP1_2
+
+   /* Inicializacion de los GPIO */
+
+   gpioConfig( GPIO0, GPIO_INPUT );
+
+   gpioConfig( GPIO1, GPIO_OUTPUT );
+
+   /* Variable para almacenar el valor de tecla leido */
+   bool_t valor;
+
+   while(1)
+   {
+
+      valor = !gpioRead( TEC1 );
+      gpioWrite( LEDB, valor );
+
+      valor = !gpioRead( TEC2 );
+      gpioWrite( LED1, valor );
+
+      valor = !gpioRead( TEC3 );
+      gpioWrite( LED2, valor );
+
+      valor = !gpioRead( TEC4 );
+      gpioWrite( LED3, valor );
+
+      valor = !gpioRead( GPIO0 );
+      gpioWrite( GPIO1, valor );
+
+   }
+
+#endif //TP1_2
+
+#ifdef TP1_3
+
+   /* Inicializar el conteo de Ticks con resolucion de 50ms */
+
+   tickConfig( 50 );
+
+   tickCallbackSet( myTickHook, (void*)LEDR );
+   delay(1000);
+
+   while(1)
+   {
+      tickCallbackSet( myTickHook, (void*)LEDG );
+      delay(1000);
+      tickCallbackSet( myTickHook, (void*)LEDB );
+      delay(1000);
+      tickCallbackSet( myTickHook, (void*)LED1 );
+      delay(1000);
+      tickCallbackSet( myTickHook, (void*)LED2 );
+      delay(1000);
+      tickCallbackSet( myTickHook, (void*)LED3 );
+      delay(1000);
+      tickCallbackSet( myTickHook, (void*)LEDR );
+      delay(1000);
+   }
+
+#endif //TP1_3
 
    /* NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa no es llamado
       por ningun S.O. */
