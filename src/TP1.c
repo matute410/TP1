@@ -43,10 +43,10 @@
 
 #ifdef TP1_3
 
-void myTickHook( void *ptr ){
 
+void myTickHook( void *ptr )
+{
    static bool_t ledState = OFF;
-
    gpioMap_t led = (gpioMap_t)ptr;
 
    if( ledState ){
@@ -60,6 +60,68 @@ void myTickHook( void *ptr ){
 
 #endif //TP1_3
 
+#ifdef TP1_4
+
+#define TICKRATE_MS 50
+#define LED_TOGGLE_MS 500
+
+void myTickHook( void *ptr )
+{
+   static bool_t ledState = OFF;
+   gpioMap_t led = (gpioMap_t)ptr;
+
+   if( ledState ){
+      ledState = OFF;
+   }
+   else{
+      ledState = ON;
+   }
+   gpioWrite( led, ledState );
+}
+
+#endif //TP1_4
+
+#ifdef TP1_5
+
+#define TICKRATE_MS 50
+#define LED_TOGGLE_MS 500
+
+void myTickHook( void *ptr )
+{
+   static bool_t ledState = OFF;
+   gpioMap_t led = (gpioMap_t)ptr;
+
+   if( ledState ){
+      ledState = OFF;
+   }
+   else{
+      ledState = ON;
+   }
+   gpioWrite( led, ledState );
+}
+
+#endif //TP1_5
+
+#ifdef TP1_6
+
+#define TICKRATE_MS 50
+#define LED_TOGGLE_MS 250
+
+void myTickHook( void *ptr )
+{
+   static bool_t ledState = OFF;
+   gpioMap_t led = (gpioMap_t)ptr;
+
+   if( ledState ){
+      ledState = OFF;
+   }
+   else{
+      ledState = ON;
+   }
+   gpioWrite( led, ledState );
+}
+
+#endif //TP1_6
 
 /* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
 
@@ -76,17 +138,13 @@ int main(void)
 
    while(1)
    {
-
       /* Prendo el led azul */
       gpioWrite( LEDB, ON );
-
       delay(500);
 
       /* Apago el led azul */
       gpioWrite( LEDB, OFF );
-
       delay(500);
-
    }
 
 #endif //TP1_1
@@ -96,7 +154,6 @@ int main(void)
    /* Inicializacion de los GPIO */
 
    gpioConfig( GPIO0, GPIO_INPUT );
-
    gpioConfig( GPIO1, GPIO_OUTPUT );
 
    /* Variable para almacenar el valor de tecla leido */
@@ -119,7 +176,6 @@ int main(void)
 
       valor = !gpioRead( GPIO0 );
       gpioWrite( GPIO1, valor );
-
    }
 
 #endif //TP1_2
@@ -128,28 +184,188 @@ int main(void)
 
    /* Inicializar el conteo de Ticks con resolucion de 50ms */
 
-   tickConfig( 50 );
+   tickConfig(50);
 
    tickCallbackSet( myTickHook, (void*)LEDR );
-   delay(1000);
+   delay(500);
 
    while(1)
    {
       tickCallbackSet( myTickHook, (void*)LEDG );
-      delay(1000);
+      delay(500);
       tickCallbackSet( myTickHook, (void*)LEDB );
-      delay(1000);
+      delay(500);
       tickCallbackSet( myTickHook, (void*)LED1 );
-      delay(1000);
+      delay(500);
       tickCallbackSet( myTickHook, (void*)LED2 );
-      delay(1000);
+      delay(500);
       tickCallbackSet( myTickHook, (void*)LED3 );
-      delay(1000);
+      delay(500);
       tickCallbackSet( myTickHook, (void*)LEDR );
-      delay(1000);
+      delay(500);
    }
 
-#endif //TP1_3
+#endif 	//TP1_3
+
+
+#ifdef TP1_4
+
+   /* Inicializar el conteo de Ticks con resolucion de 50ms */
+
+      tickConfig(TICKRATE_MS);
+
+      tickCallbackSet( myTickHook, (void*)NULL);
+
+      while(1)
+      {
+         tickCallbackSet( myTickHook, (void*)LEDG );
+         delay(LED_TOGGLE_MS);
+         tickCallbackSet( myTickHook, (void*)LEDB );
+         delay(LED_TOGGLE_MS);
+         tickCallbackSet( myTickHook, (void*)LED1 );
+         delay(LED_TOGGLE_MS);
+         tickCallbackSet( myTickHook, (void*)LED2 );
+         delay(LED_TOGGLE_MS);
+         tickCallbackSet( myTickHook, (void*)LED3 );
+         delay(LED_TOGGLE_MS);
+         tickCallbackSet( myTickHook, (void*)LEDR );
+         delay(LED_TOGGLE_MS);
+      }
+
+#endif //TP1_4
+
+#ifdef TP1_5
+
+
+      /* The DEBUG* functions are sAPI debug print functions.
+      Code that uses the DEBUG* functions will have their I/O routed to
+      the sAPI DEBUG UART. */
+
+      DEBUG_PRINT_ENABLE; // Inicialización de la interfaz debug
+
+      /* UART for debug messages. */
+
+      debugPrintConfigUart( UART_USB, 115200 );
+      debugPrintString( "DEBUG c/sAPI\r\n" );
+
+
+   /* Inicializar el conteo de Ticks con resolucion de 50ms */
+
+      tickConfig(TICKRATE_MS);
+
+      tickCallbackSet( myTickHook, (void*)LEDR );
+      delay(LED_TOGGLE_MS);
+      debugPrintString( "LED Toggle\n" );
+
+      while(1)
+      {
+         tickCallbackSet( myTickHook, (void*)LEDG );
+         debugPrintString( "LED Toggle\n" );
+         delay(LED_TOGGLE_MS);
+         tickCallbackSet( myTickHook, (void*)LEDB );
+         debugPrintString( "LED Toggle\n" );
+         delay(LED_TOGGLE_MS);
+         tickCallbackSet( myTickHook, (void*)LED1 );
+         debugPrintString( "LED Toggle\n" );
+         delay(LED_TOGGLE_MS);
+         tickCallbackSet( myTickHook, (void*)LED2 );
+         debugPrintString( "LED Toggle\n" );
+         delay(LED_TOGGLE_MS);
+         tickCallbackSet( myTickHook, (void*)LED3 );
+         debugPrintString( "LED Toggle\n" );
+         delay(LED_TOGGLE_MS);
+         tickCallbackSet( myTickHook, (void*)LEDR );
+         debugPrintString( "LED Toggle\n" );
+         delay(LED_TOGGLE_MS);
+      }
+
+#endif //TP1_5
+
+#ifdef TP1_6		// Agregar sensado de pushButtons
+
+      DEBUG_PRINT_ENABLE; // Inicialización de la interfaz debug
+      int teclaPresionada = 0;
+           /* UART for debug messages. */
+
+           debugPrintConfigUart( UART_USB, 115200 );
+           debugPrintString( "DEBUG c/sAPI\r\n" );
+
+
+        /* Inicializar el conteo de Ticks con resolucion de 50ms */
+
+
+           while(1)
+           {
+        	   if (gpioRead( TEC1 ) == 0)
+        	   {
+        		   int led = 0;
+
+        		   debugPrintString( "Tecla 1\n" );
+
+        		   for (led = LEDR; led <= LED3; led++)
+        		   {
+        			   gpioWrite( led, 1 );
+        			   delay(LED_TOGGLE_MS);
+        		   }
+        		   for (led = LED3; led >= LEDR; led--)
+        		   {
+        			   gpioWrite( led, 0 );
+        			   delay(LED_TOGGLE_MS);
+        		   }
+        	   }
+
+        	   if (gpioRead( TEC2 ) == 0)
+        	   {
+        		   int led = 0;
+
+        		   debugPrintString( "Tecla 2\n" );
+
+        		   for (led = LEDR; led <= LED3; led++)
+        		   {
+        			   gpioWrite( led, 1 );
+        			   delay(LED_TOGGLE_MS);
+        		   }
+        		   for (led = LED3; led >= LEDR; led--)
+        		   {
+        			   gpioWrite( led, 0 );
+        			   delay(LED_TOGGLE_MS);
+        		   }
+        	   }
+
+        	   if (gpioRead( TEC3 ) == 0)
+        	   {
+        		   debugPrintString( "Tecla 3\n" );
+
+        		   for (int led = LEDR; led <= LED3; led++)
+        		   {
+        			   gpioWrite( led, 1 );
+        			   delay(LED_TOGGLE_MS);
+        			   gpioWrite( led, 0 );
+        		   }
+        	   }
+
+        	   if (gpioRead( TEC4 ) == 0)
+        	   {
+        		   teclaPresionada = 1;
+        		   debugPrintString( "Tecla 4\n" );
+
+        		   for (int led = LEDR; led <= LED3; led++)
+        		   {
+        			   gpioWrite( led, 1 );
+        			   delay(LED_TOGGLE_MS);
+        			   gpioWrite( led, 0 );
+        		   }
+        	   }
+        	   if (gpioRead( TEC4 ) == 1 && teclaPresionada == 1)
+        	   {
+        		   debugPrintString( "Tecla 4 soltada\n" );
+        		   teclaPresionada = 0;
+        	   }
+           }
+
+
+
+#endif // TP1_6
 
    /* NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa no es llamado
       por ningun S.O. */
